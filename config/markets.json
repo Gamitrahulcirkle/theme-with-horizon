@@ -9,6 +9,9 @@
  */
 {
   "markets": {
+    "canada": {
+      "parent": "@default"
+    },
     "all-b2b": {
       "parent": "@default"
     },
