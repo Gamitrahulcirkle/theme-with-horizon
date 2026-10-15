@@ -1,0 +1,147 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "image_hotspots": {
+      "type": "image-hotspots",
+      "blocks": {
+        "monitor_stand": { "type": "hotspot", "settings": { "title": "Monitor Stand", "price": "from $129", "position_x": 67, "position_y": 44 } },
+        "drawer": { "type": "hotspot", "settings": { "title": "Timber Face Metal Drawer", "price": "from $159", "position_x": 63, "position_y": 56 } },
+        "storage_unit": { "type": "hotspot", "settings": { "title": "Mobile Storage Unit", "price": "from $199", "position_x": 85, "position_y": 64 } }
+      },
+      "block_order": ["monitor_stand", "drawer", "storage_unit"],
+      "settings": { "image": "shopify://shop_images/desk-hotspots.png", "image_position": "left", "heading": "Coordinate with your timber desktop with our matching accessories", "heading_size": "h2", "heading_color": "#003349", "text": "<p>Create a co-ordinated and professional look by pairing your timber desktop with our matching <em>monitor stand, timber-faced drawer</em> and <em>open mobile unit</em>. Our suite of accessories combine practical storage with a sleek, minimalist design, keeping your workspace clean, organised, and clutter-free.</p>", "text_alignment": "right", "dot_color": "#4fb3e8", "card_color": "#ffffff", "text_color": "#003349", "color_scheme": "scheme-1", "padding_top": 36, "padding_bottom": 36 }
+    },
+    "bundle_builder": {
+      "type": "bundle-builder",
+      "settings": {
+        "heading": "Build your own bundle",
+        "subheading": "<p>Pick 3 or more products and save up to 20%.</p>",
+        "badge_text": "Save up to",
+        "badge_value": "20%",
+        "collection": "automated-collection",
+        "products_to_show": 6,
+        "button_label": "Add bundle to cart",
+        "min_items": 3,
+        "tier_1_quantity": 3,
+        "tier_1_discount": 10,
+        "tier_2_quantity": 5,
+        "tier_2_discount": 15,
+        "tier_3_quantity": 10,
+        "tier_3_discount": 20,
+        "enable_subscription": true,
+        "subscription_badge": "Save extra 5%",
+        "subscription_label": "Subscribe to bundle",
+        "subscription_info": "Delivered on repeat. Skip or cancel anytime.",
+        "subscription_discount": 5,
+        "color_scheme": "scheme-1",
+        "padding_top": 36,
+        "padding_bottom": 36
+      }
+    },
+    "main": {
+      "type": "main-product",
+      "blocks": {
+        "vendor": {
+          "type": "text",
+          "settings": {
+            "text": "{{ product.vendor }}",
+            "text_style": "uppercase"
+          }
+        },
+        "title": {
+          "type": "title",
+          "settings": {}
+        },
+        "price": {
+          "type": "price",
+          "settings": {}
+        },
+        "variant_picker": {
+          "type": "variant_picker",
+          "settings": {
+            "picker_type": "button",
+            "swatch_shape": "circle"
+          }
+        },
+        "quantity_selector": {
+          "type": "quantity_selector",
+          "settings": {}
+        },
+        "buy_buttons": {
+          "type": "buy_buttons",
+          "settings": {
+            "show_dynamic_checkout": true,
+            "show_gift_card_recipient": true
+          }
+        },
+        "description": {
+          "type": "description",
+          "settings": {}
+        },
+        "share": {
+          "type": "share",
+          "settings": {
+            "share_label": "Share"
+          }
+        }
+      },
+      "block_order": [
+        "vendor",
+        "title",
+        "price",
+        "variant_picker",
+        "quantity_selector",
+        "buy_buttons",
+        "description",
+        "share"
+      ],
+      "settings": {
+        "enable_sticky_info": true,
+        "color_scheme": "scheme-1",
+        "media_size": "large",
+        "constrain_to_viewport": true,
+        "media_fit": "contain",
+        "gallery_layout": "stacked",
+        "mobile_thumbnails": "hide",
+        "media_position": "left",
+        "image_zoom": "lightbox",
+        "hide_variants": true,
+        "enable_video_looping": false,
+        "padding_top": 36,
+        "padding_bottom": 12
+      }
+    },
+    "related-products": {
+      "type": "related-products",
+      "settings": {
+        "heading": "You may also like",
+        "heading_size": "h2",
+        "products_to_show": 4,
+        "columns_desktop": 4,
+        "columns_mobile": "2",
+        "color_scheme": "scheme-1",
+        "image_ratio": "square",
+        "image_shape": "default",
+        "show_secondary_image": true,
+        "show_vendor": false,
+        "show_rating": false,
+        "padding_top": 36,
+        "padding_bottom": 28
+      }
+    }
+  },
+  "order": [
+    "main",
+    "image_hotspots",
+    "bundle_builder",
+    "related-products"
+  ]
+}

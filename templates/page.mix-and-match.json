@@ -1,0 +1,25 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "builder": {
+      "type": "mix-and-match",
+      "blocks": {
+        "sachets": { "type": "product_group", "settings": { "product": "complete-protein-powder-meal-sachet", "eyebrow": "Black Edition Sachets", "title": "Complete high-protein powder meal", "fact_1": "400 kcal per meal", "fact_2": "40g protein" } },
+        "hot_savoury": { "type": "product_group", "settings": { "eyebrow": "Hot & Savoury", "title": "Hot & tasty instant meal", "fact_1": "400 kcal per meal", "fact_2": "Up to 25g protein" } },
+        "rtd_black": { "type": "product_group", "settings": { "eyebrow": "Ready-to-Drink Black Edition", "title": "High-protein meal shake", "fact_1": "400 kcal per meal", "fact_2": "35g protein" } },
+        "rtd_lite": { "type": "product_group", "settings": { "eyebrow": "Ready-to-Drink Lite", "title": "Lighter protein shake", "fact_1": "200 kcal per bottle", "fact_2": "20g protein" } }
+      },
+      "block_order": ["sachets", "hot_savoury", "rtd_black", "rtd_lite"],
+      "settings": {}
+    }
+  },
+  "order": ["builder"]
+}

@@ -1,0 +1,1101 @@
+{% doc %}
+  Renders the model preview window for clothing products on the collection page.
+
+  @param {collection} try_on_collection - Collection whose products can be previewed
+  @param {string} [heading] - Heading shown in the preview window
+  @param {number} [media_position] - Which product photo to show first (1-based)
+  @param {string} section_id - The section ID
+  @param {object[]} [looks] - Trial room look blocks, each with a product and a mannequin image
+{% enddoc %}
+
+{%- liquid
+  assign start_position = media_position | default: 1
+  assign start_index = start_position | minus: 1
+  assign look_ids = ''
+  for look in looks
+    if look.settings.product != blank
+      assign look_ids = look_ids | append: ',' | append: look.settings.product.id | append: ','
+    endif
+  endfor
+-%}
+
+<try-on-modal id="TryOn-{{ section_id }}" class="try-on" data-section-id="{{ section_id }}">
+  <dialog class="try-on__dialog color-{{ settings.card_color_scheme }} gradient" aria-labelledby="TryOnTitle-{{ section_id }}">
+    <div class="try-on__inner">
+      <button type="button" class="try-on__close" data-try-on-close aria-label="{{ 'sections.try_on.close' | t }}">
+        <span class="svg-wrapper" aria-hidden="true">{{ 'icon-close.svg' | inline_asset_content }}</span>
+      </button>
+
+      <div class="try-on__stage">
+        <img class="try-on__image" data-try-on-image src="" alt="" width="1000" height="1250">
+        <button type="button" class="try-on__nav try-on__nav--prev" data-try-on-prev aria-label="{{ 'sections.try_on.previous' | t }}">
+          <span class="svg-wrapper" aria-hidden="true">{{ 'icon-caret.svg' | inline_asset_content }}</span>
+        </button>
+        <button type="button" class="try-on__nav try-on__nav--next" data-try-on-next aria-label="{{ 'sections.try_on.next' | t }}">
+          <span class="svg-wrapper" aria-hidden="true">{{ 'icon-caret.svg' | inline_asset_content }}</span>
+        </button>
+        <p class="try-on__counter caption" data-try-on-counter></p>
+        <span class="try-on__tag caption-with-letter-spacing" data-try-on-tag hidden>{{ 'sections.try_on.trial_view' | t }}</span>
+
+        <div class="try-on__self" data-try-on-self hidden>
+          <label class="try-on__upload" data-try-on-upload>
+            <input
+              type="file"
+              accept="image/*"
+              class="visually-hidden"
+              data-try-on-file
+              aria-describedby="TryOnHint-{{ section_id }}"
+            >
+            <span class="svg-wrapper try-on__upload-icon" aria-hidden="true">{{ 'icon-plus.svg' | inline_asset_content }}</span>
+            <span class="try-on__upload-label">{{ 'sections.try_on.upload' | t }}</span>
+            <span class="try-on__upload-hint caption" id="TryOnHint-{{ section_id }}">{{ 'sections.try_on.upload_hint' | t }}</span>
+          </label>
+          <div class="try-on__canvas" data-try-on-canvas hidden>
+            <canvas
+              class="try-on__render"
+              data-try-on-render
+              tabindex="0"
+              role="img"
+              width="800"
+              height="1000"
+            ></canvas>
+            <button type="button" class="try-on__compare caption-with-letter-spacing" data-try-on-compare>
+              {{- 'sections.try_on.compare' | t -}}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="try-on__panel">
+        {%- if heading != blank -%}
+          <p class="try-on__eyebrow caption-with-letter-spacing">{{ heading }}</p>
+        {%- endif -%}
+        <h2 class="try-on__title h3" id="TryOnTitle-{{ section_id }}" data-try-on-title></h2>
+        <p class="try-on__price" data-try-on-price></p>
+
+        <div class="try-on__modes" role="group" aria-label="{{ 'sections.try_on.mode_label' | t }}">
+          <button type="button" class="try-on__mode" data-try-on-mode="mannequin" aria-pressed="true">
+            {{- 'sections.try_on.mode_mannequin' | t -}}
+          </button>
+          <button type="button" class="try-on__mode" data-try-on-mode="self" aria-pressed="false">
+            {{- 'sections.try_on.mode_self' | t -}}
+          </button>
+        </div>
+
+        <div class="try-on__controls" data-try-on-controls hidden>
+          <p class="caption try-on__drag-hint">{{ 'sections.try_on.drag_hint' | t }}</p>
+          <label class="try-on__range">
+            <span>{{ 'sections.try_on.size' | t }}</span>
+            <input type="range" min="30" max="200" value="100" data-try-on-size>
+          </label>
+          <label class="try-on__range">
+            <span>{{ 'sections.try_on.rotate' | t }}</span>
+            <input type="range" min="-30" max="30" value="0" data-try-on-rotate>
+          </label>
+          <label class="try-on__range">
+            <span>{{ 'sections.try_on.width' | t }}</span>
+            <input type="range" min="70" max="150" value="100" data-try-on-width>
+          </label>
+          <label class="try-on__range">
+            <span>{{ 'sections.try_on.neckline' | t }}</span>
+            <input type="range" min="0" max="20" value="6" data-try-on-neck>
+          </label>
+          <label class="try-on__range">
+            <span>{{ 'sections.try_on.blend' | t }}</span>
+            <input type="range" min="0" max="100" value="55" data-try-on-blend>
+          </label>
+          <div class="try-on__control-buttons">
+            <button type="button" class="link" data-try-on-change>{{ 'sections.try_on.change_photo' | t }}</button>
+            <button type="button" class="link" data-try-on-reset>{{ 'sections.try_on.reset' | t }}</button>
+          </div>
+        </div>
+        <a href="#" class="button button--full-width try-on__link" data-try-on-link>
+          {{- 'sections.try_on.view_product' | t -}}
+        </a>
+
+        <p class="try-on__more caption-with-letter-spacing">{{ 'sections.try_on.more_styles' | t }}</p>
+        <ul class="try-on__thumbs" role="list">
+          {%- for product in try_on_collection.products limit: 24 -%}
+            {%- if look_ids != blank -%}
+              {%- assign product_key = ',' | append: product.id | append: ',' -%}
+              {%- unless look_ids contains product_key -%}
+                {%- continue -%}
+              {%- endunless -%}
+            {%- endif -%}
+            <li>
+              <button
+                type="button"
+                class="try-on__thumb"
+                data-try-on-select="{{ product.id }}"
+                aria-label="{{ product.title | escape }}"
+                aria-pressed="false"
+              >
+                {%- if product.featured_media != blank -%}
+                  {{
+                    product.featured_media
+                    | image_url: width: 200
+                    | image_tag: loading: 'lazy', widths: '100, 200', sizes: '80px', alt: ''
+                  }}
+                {%- endif -%}
+              </button>
+            </li>
+          {%- endfor -%}
+        </ul>
+      </div>
+    </div>
+    <div class="visually-hidden" aria-live="polite" aria-atomic="true" data-try-on-announcer></div>
+  </dialog>
+
+  <script type="application/json" data-try-on-data>
+    {
+      "strings": {
+        "photo": {{ 'sections.try_on.photo' | t: index: '__INDEX__', count: '__COUNT__' | json }},
+        "nowShowing": {{ 'sections.try_on.now_showing' | t: product: '__PRODUCT__' | json }},
+        "canvas": {{ 'sections.try_on.canvas_label' | t: product: '__PRODUCT__' | json }}
+      },
+      "products": [
+        {%- for product in try_on_collection.products limit: 24 -%}
+          {%- liquid
+            assign images = product.media | where: 'media_type', 'image'
+            assign start = start_index
+            if start >= images.size
+              assign start = 0
+            endif
+            assign model_image = product.metafields.custom.on_model_image.value
+            assign garment_image = nil
+            assign trial_count = 0
+            if model_image != blank
+              assign trial_count = 1
+            endif
+            for look in looks
+              if look.settings.product.id == product.id
+                if look.settings.image != blank
+                  assign trial_count = trial_count | plus: 1
+                endif
+                if look.settings.garment_image != blank and garment_image == nil
+                  assign garment_image = look.settings.garment_image
+                endif
+              endif
+            endfor
+          -%}
+          {
+            "id": {{ product.id | json }},
+            "title": {{ product.title | json }},
+            "price": {{ product.price | money | json }},
+            "url": {{ product.url | json }},
+            "start": {% if trial_count > 0 %}0{% else %}{{ start }}{% endif %},
+            "garment": {% if garment_image != nil %}{{ garment_image | image_url: width: 900 | json }}{% else %}null{% endif %},
+            "garmentKeyed": {% if garment_image != nil %}true{% else %}false{% endif %},
+            "fallbackGarment": {% if product.featured_media != blank %}{{ product.featured_media | image_url: width: 900 | json }}{% else %}null{% endif %},
+            "images": [
+              {%- assign wrote_image = false -%}
+              {%- if model_image != blank -%}
+                {"src": {{ model_image | image_url: width: 1200 | json }}, "alt": {{ model_image.alt | default: product.title | json }}, "trial": true}
+                {%- assign wrote_image = true -%}
+              {%- endif -%}
+              {%- for look in looks -%}
+                {%- if look.settings.product.id == product.id and look.settings.image != blank -%}
+                  {%- if wrote_image -%},{%- endif -%}
+                  {"src": {{ look.settings.image | image_url: width: 1200 | json }}, "alt": {{ look.settings.image.alt | default: product.title | json }}, "trial": true}
+                  {%- assign wrote_image = true -%}
+                {%- endif -%}
+              {%- endfor -%}
+              {%- if wrote_image and images.size > 0 -%},{%- endif -%}
+              {%- for media in images -%}
+                {"src": {{ media | image_url: width: 1200 | json }}, "alt": {{ media.alt | default: product.title | json }}}
+                {%- unless forloop.last -%},{%- endunless -%}
+              {%- endfor -%}
+            ]
+          }
+          {%- unless forloop.last -%},{%- endunless -%}
+        {%- endfor -%}
+      ]
+    }
+  </script>
+</try-on-modal>
+
+<style>
+  .product-grid > .grid__item {
+    position: relative;
+  }
+
+  .try-on-trigger {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 3;
+    height: 3.6rem;
+    padding: 0 1.4rem 0 1.1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    border: 0;
+    border-radius: 2rem;
+    background: rgb(var(--color-background));
+    color: rgb(var(--color-foreground));
+    font-size: 1.3rem;
+    font-weight: 600;
+    box-shadow: 0 0.2rem 1rem rgba(0, 0, 0, 0.15);
+    cursor: pointer;
+    transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+  }
+
+  .try-on-trigger:hover {
+    transform: scale(1.08);
+    background: rgb(var(--color-foreground));
+    color: rgb(var(--color-background));
+  }
+
+  .try-on-trigger:focus-visible {
+    outline: 0.2rem solid rgb(var(--color-foreground));
+    outline-offset: 0.3rem;
+  }
+
+  .try-on-trigger .svg-wrapper,
+  .try-on-trigger svg {
+    width: 2rem;
+    height: 2rem;
+  }
+
+  .try-on__dialog {
+    width: min(100rem, calc(100vw - 2rem));
+    max-height: calc(100vh - 2rem);
+    padding: 0;
+    border: 0;
+    border-radius: 1rem;
+    overflow: hidden;
+    background: rgb(var(--color-background));
+    color: rgb(var(--color-foreground));
+  }
+
+  .try-on__dialog::backdrop {
+    background: rgba(0, 0, 0, 0.6);
+  }
+
+  .try-on__dialog[open] {
+    animation: try-on-in 0.3s ease;
+  }
+
+  @keyframes try-on-in {
+    from {
+      opacity: 0;
+      transform: translateY(1.6rem);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .try-on__inner {
+    position: relative;
+    display: grid;
+    max-height: calc(100vh - 2rem);
+    overflow-y: auto;
+  }
+
+  @media screen and (min-width: 750px) {
+    .try-on__inner {
+      grid-template-columns: 1.2fr 1fr;
+    }
+  }
+
+  .try-on__close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 2;
+    width: 4rem;
+    height: 4rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: 50%;
+    background: rgb(var(--color-background));
+    color: rgb(var(--color-foreground));
+    cursor: pointer;
+  }
+
+  .try-on__close .svg-wrapper,
+  .try-on__close svg {
+    width: 1.6rem;
+    height: 1.6rem;
+  }
+
+  .try-on__stage {
+    position: relative;
+    background: rgba(var(--color-foreground), 0.04);
+    aspect-ratio: 4 / 5;
+    max-height: 80vh;
+    width: 100%;
+  }
+
+  .try-on__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: opacity 0.25s ease;
+  }
+
+  .try-on__image.is-loading {
+    opacity: 0;
+  }
+
+  .try-on__nav {
+    position: absolute;
+    top: 50%;
+    width: 4rem;
+    height: 4rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(var(--color-background), 0.9);
+    color: rgb(var(--color-foreground));
+    cursor: pointer;
+    transform: translateY(-50%);
+  }
+
+  .try-on__nav[hidden] {
+    display: none;
+  }
+
+  .try-on__nav--prev {
+    left: 1rem;
+  }
+
+  .try-on__nav--prev svg {
+    transform: rotate(90deg);
+  }
+
+  .try-on__nav--next {
+    right: 1rem;
+  }
+
+  .try-on__nav--next svg {
+    transform: rotate(-90deg);
+  }
+
+  .try-on__nav .svg-wrapper,
+  .try-on__nav svg {
+    width: 1.2rem;
+    height: 1.2rem;
+  }
+
+  .try-on__counter {
+    position: absolute;
+    bottom: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 0;
+    padding: 0.3rem 1rem;
+    border-radius: 2rem;
+    background: rgba(var(--color-background), 0.9);
+  }
+
+  .try-on__tag {
+    position: absolute;
+    top: 1.2rem;
+    left: 1.2rem;
+    padding: 0.4rem 1.2rem;
+    border-radius: 2rem;
+    background: rgb(var(--color-foreground));
+    color: rgb(var(--color-background));
+  }
+
+  .try-on__tag[hidden] {
+    display: none;
+  }
+
+  .try-on__self {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: rgba(var(--color-foreground), 0.04);
+  }
+
+  .try-on__self[hidden],
+  .try-on__canvas[hidden],
+  .try-on__upload[hidden],
+  .try-on__controls[hidden] {
+    display: none;
+  }
+
+  .try-on__upload {
+    position: absolute;
+    inset: 1.6rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 2rem;
+    text-align: center;
+    border: 0.2rem dashed rgba(var(--color-foreground), 0.3);
+    border-radius: 0.8rem;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+  }
+
+  .try-on__upload:hover,
+  .try-on__upload:focus-within {
+    border-color: rgb(var(--color-foreground));
+    background: rgba(var(--color-foreground), 0.04);
+  }
+
+  .try-on__upload-icon {
+    width: 4.8rem;
+    height: 4.8rem;
+    padding: 1.4rem;
+    border-radius: 50%;
+    background: rgb(var(--color-foreground));
+    color: rgb(var(--color-background));
+  }
+
+  .try-on__upload-label {
+    font-weight: 600;
+    font-size: 1.6rem;
+  }
+
+  .try-on__upload-hint {
+    max-width: 28rem;
+    color: rgba(var(--color-foreground), 0.75);
+  }
+
+  .try-on__canvas {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    touch-action: none;
+  }
+
+  .try-on__render {
+    display: block;
+    width: 100%;
+    height: 100%;
+    cursor: grab;
+    touch-action: none;
+  }
+
+  .try-on__render:active {
+    cursor: grabbing;
+  }
+
+  .try-on__render:focus-visible {
+    outline: 0.2rem solid rgb(var(--color-foreground));
+    outline-offset: -0.4rem;
+  }
+
+  .try-on__compare {
+    position: absolute;
+    bottom: 1.2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 0.8rem 1.6rem;
+    border: 0;
+    border-radius: 2rem;
+    background: rgba(var(--color-background), 0.92);
+    color: rgb(var(--color-foreground));
+    box-shadow: 0 0.2rem 0.8rem rgba(0, 0, 0, 0.15);
+    cursor: pointer;
+    user-select: none;
+    touch-action: none;
+  }
+
+  .try-on__modes {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.4rem;
+    padding: 0.4rem;
+    margin-bottom: 1.6rem;
+    border-radius: 3rem;
+    background: rgba(var(--color-foreground), 0.06);
+  }
+
+  .try-on__mode {
+    padding: 1rem 1.2rem;
+    border: 0;
+    border-radius: 3rem;
+    background: transparent;
+    color: rgb(var(--color-foreground));
+    font-size: 1.4rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  .try-on__mode[aria-pressed='true'] {
+    background: rgb(var(--color-foreground));
+    color: rgb(var(--color-background));
+  }
+
+  .try-on__controls {
+    margin-bottom: 2rem;
+  }
+
+  .try-on__drag-hint {
+    margin: 0 0 1rem;
+    color: rgba(var(--color-foreground), 0.75);
+  }
+
+  .try-on__range {
+    display: grid;
+    grid-template-columns: 6rem 1fr;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.8rem;
+    font-size: 1.4rem;
+  }
+
+  .try-on__range input {
+    accent-color: rgb(var(--color-foreground));
+  }
+
+  .try-on__control-buttons {
+    display: flex;
+    gap: 2rem;
+    margin-top: 0.8rem;
+  }
+
+  .try-on__control-buttons .link {
+    font-size: 1.4rem;
+    background: none;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    color: rgb(var(--color-foreground));
+    text-decoration: underline;
+  }
+
+  .try-on__panel {
+    padding: 4rem 2.4rem 2.4rem;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .try-on__eyebrow,
+  .try-on__more {
+    margin: 0 0 0.8rem;
+    color: rgba(var(--color-foreground), 0.7);
+  }
+
+  .try-on__title {
+    margin: 0 0 0.6rem;
+  }
+
+  .try-on__price {
+    margin: 0 0 2rem;
+    font-size: 1.8rem;
+  }
+
+  .try-on__link {
+    margin-bottom: 3rem;
+  }
+
+  .try-on__thumbs {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(7rem, 1fr));
+    gap: 0.8rem;
+  }
+
+  .try-on__thumb {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    padding: 0;
+    border: 0.2rem solid transparent;
+    border-radius: 0.6rem;
+    overflow: hidden;
+    background: rgba(var(--color-foreground), 0.06);
+    cursor: pointer;
+    transition: border-color 0.2s ease, transform 0.2s ease;
+  }
+
+  .try-on__thumb:hover {
+    transform: translateY(-0.2rem);
+  }
+
+  .try-on__thumb[aria-pressed='true'] {
+    border-color: rgb(var(--color-foreground));
+  }
+
+  .try-on__thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .try-on-trigger,
+    .try-on__image,
+    .try-on__thumb,
+    .try-on__dialog[open] {
+      transition: none;
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  if (!customElements.get('try-on-modal')) {
+    class TryOnModal extends HTMLElement {
+      connectedCallback() {
+        const dataEl = this.querySelector('[data-try-on-data]');
+        const data = dataEl ? JSON.parse(dataEl.textContent) : { products: [], strings: {} };
+        this.products = data.products;
+        this.strings = data.strings;
+        this.dialog = this.querySelector('dialog');
+        this.image = this.querySelector('[data-try-on-image]');
+        this.prev = this.querySelector('[data-try-on-prev]');
+        this.next = this.querySelector('[data-try-on-next]');
+        this.trigger = null;
+
+        this.onDocumentClick = (event) => {
+          const button = event.target.closest('[data-try-on-open]');
+          if (!button || !this.dialog) return;
+          event.preventDefault();
+          this.trigger = button;
+          this.show(button.dataset.tryOnOpen);
+          this.dialog.showModal();
+        };
+        document.addEventListener('click', this.onDocumentClick);
+
+        this.querySelector('[data-try-on-close]').addEventListener('click', () => this.dialog.close());
+        this.dialog.addEventListener('click', (event) => {
+          if (event.target === this.dialog) this.dialog.close();
+        });
+        this.dialog.addEventListener('close', () => {
+          if (this.trigger) this.trigger.focus();
+        });
+        this.prev.addEventListener('click', () => this.step(-1));
+        this.next.addEventListener('click', () => this.step(1));
+        this.dialog.addEventListener('keydown', (event) => {
+          if (event.target.matches('input')) return;
+          if (event.key === 'ArrowLeft') this.step(-1);
+          if (event.key === 'ArrowRight') this.step(1);
+        });
+        this.querySelectorAll('[data-try-on-select]').forEach((thumb) => {
+          thumb.addEventListener('click', () => {
+            this.show(thumb.dataset.tryOnSelect);
+            this.announce((this.strings.nowShowing || '').replace('__PRODUCT__', this.current.title));
+          });
+        });
+
+        this.mode = 'mannequin';
+        this.keyedCache = {};
+        this.showOriginal = false;
+        this.self = this.querySelector('[data-try-on-self]');
+        this.upload = this.querySelector('[data-try-on-upload]');
+        this.fileInput = this.querySelector('[data-try-on-file]');
+        this.canvasWrap = this.querySelector('[data-try-on-canvas]');
+        this.canvas = this.querySelector('[data-try-on-render]');
+        this.ctx = this.canvas.getContext('2d');
+        this.controls = this.querySelector('[data-try-on-controls]');
+        this.inputs = {
+          size: this.querySelector('[data-try-on-size]'),
+          rotate: this.querySelector('[data-try-on-rotate]'),
+          width: this.querySelector('[data-try-on-width]'),
+          neck: this.querySelector('[data-try-on-neck]'),
+          blend: this.querySelector('[data-try-on-blend]'),
+        };
+        this.defaults = { size: 100, rotate: 0, width: 100, neck: 6, blend: 55 };
+        this.pos = { x: 0.5, y: 0.17 };
+
+        this.querySelectorAll('[data-try-on-mode]').forEach((button) => {
+          button.addEventListener('click', () => this.setMode(button.dataset.tryOnMode));
+        });
+        this.fileInput.addEventListener('change', () => this.loadPhoto());
+        this.querySelector('[data-try-on-change]').addEventListener('click', () => this.fileInput.click());
+        this.querySelector('[data-try-on-reset]').addEventListener('click', () => this.resetGarment());
+        Object.values(this.inputs).forEach((input) => input.addEventListener('input', () => this.requestDraw()));
+
+        const compare = this.querySelector('[data-try-on-compare]');
+        const startCompare = (event) => {
+          event.preventDefault();
+          this.showOriginal = true;
+          this.requestDraw();
+        };
+        const endCompare = () => {
+          this.showOriginal = false;
+          this.requestDraw();
+        };
+        compare.addEventListener('pointerdown', startCompare);
+        compare.addEventListener('pointerup', endCompare);
+        compare.addEventListener('pointerleave', endCompare);
+        compare.addEventListener('keydown', (event) => {
+          if (event.key === ' ' || event.key === 'Enter') startCompare(event);
+        });
+        compare.addEventListener('keyup', endCompare);
+
+        this.resizeObserver = new ResizeObserver(() => this.requestDraw());
+        this.resizeObserver.observe(this.canvasWrap);
+        this.bindDrag();
+      }
+
+      setMode(mode) {
+        this.mode = mode;
+        this.querySelectorAll('[data-try-on-mode]').forEach((button) => {
+          button.setAttribute('aria-pressed', String(button.dataset.tryOnMode === mode));
+        });
+        const isSelf = mode === 'self';
+        this.self.hidden = !isSelf;
+        const many = this.current && this.current.images.length > 1;
+        this.prev.hidden = isSelf || !many;
+        this.next.hidden = isSelf || !many;
+        this.querySelector('[data-try-on-counter]').hidden = isSelf || !many;
+        const tag = this.querySelector('[data-try-on-tag]');
+        if (tag && isSelf) tag.hidden = true;
+        if (!isSelf && this.current) this.render();
+        this.updateSelfView();
+      }
+
+      updateSelfView() {
+        const hasPhoto = Boolean(this.photoImg);
+        this.upload.hidden = hasPhoto;
+        this.canvasWrap.hidden = !hasPhoto;
+        this.controls.hidden = !(this.mode === 'self' && hasPhoto);
+        if (this.mode === 'self' && hasPhoto) this.loadGarment();
+      }
+
+      loadPhoto() {
+        const file = this.fileInput.files && this.fileInput.files[0];
+        if (!file || !file.type.startsWith('image/')) return;
+        if (this.photoUrl) URL.revokeObjectURL(this.photoUrl);
+        this.photoUrl = URL.createObjectURL(file);
+        const img = new Image();
+        img.onload = () => {
+          this.photoImg = img;
+          this.resetGarment();
+          this.updateSelfView();
+          this.canvas.focus();
+        };
+        img.src = this.photoUrl;
+        this.fileInput.value = '';
+      }
+
+      async loadGarment() {
+        if (!this.current) return;
+        const product = this.current;
+        this.canvas.setAttribute('aria-label', (this.strings.canvas || '').replace('__PRODUCT__', product.title));
+        let src = product.garment || product.fallbackGarment;
+        let keyed = false;
+        if (!src) return;
+        if (product.garment && product.garmentKeyed) {
+          try {
+            src = await this.keyOutGreen(product.garment);
+            keyed = true;
+          } catch (e) {
+            keyed = false;
+          }
+        }
+        const img = new Image();
+        if (!keyed) img.crossOrigin = 'anonymous';
+        img.onload = () => {
+          if (this.current !== product) return;
+          this.garmentImg = img;
+          this.garmentKeyed = keyed;
+          this.requestDraw();
+        };
+        img.src = src;
+      }
+
+      keyOutGreen(url) {
+        if (this.keyedCache[url]) return Promise.resolve(this.keyedCache[url]);
+        return new Promise((resolve, reject) => {
+          const img = new Image();
+          img.crossOrigin = 'anonymous';
+          img.onload = () => {
+            try {
+              const canvas = document.createElement('canvas');
+              canvas.width = img.naturalWidth;
+              canvas.height = img.naturalHeight;
+              const ctx = canvas.getContext('2d');
+              ctx.drawImage(img, 0, 0);
+              const frame = ctx.getImageData(0, 0, canvas.width, canvas.height);
+              const d = frame.data;
+              for (let i = 0; i < d.length; i += 4) {
+                const r = d[i];
+                const g = d[i + 1];
+                const b = d[i + 2];
+                const maxRB = Math.max(r, b);
+                const diff = g - maxRB;
+                if (g > 160 && diff > 140) {
+                  d[i + 3] = 0;
+                } else if (g > 130 && diff > 85) {
+                  d[i + 3] = Math.round(255 * (1 - (diff - 85) / 55));
+                  d[i + 1] = maxRB + Math.round(diff * 0.3);
+                }
+              }
+              ctx.putImageData(frame, 0, 0);
+              // Soften the cut edge so the shirt doesn't look pasted on
+              const soft = document.createElement('canvas');
+              soft.width = canvas.width;
+              soft.height = canvas.height;
+              const sctx = soft.getContext('2d');
+              sctx.filter = 'blur(1.5px)';
+              sctx.drawImage(canvas, 0, 0);
+              sctx.filter = 'none';
+              sctx.globalCompositeOperation = 'source-in';
+              sctx.drawImage(canvas, 0, 0);
+              const result = soft.toDataURL('image/png');
+              this.keyedCache[url] = result;
+              resolve(result);
+            } catch (e) {
+              reject(e);
+            }
+          };
+          img.onerror = reject;
+          img.src = url;
+        });
+      }
+
+      resetGarment() {
+        this.pos = { x: 0.5, y: 0.17 };
+        Object.entries(this.defaults).forEach(([key, value]) => {
+          this.inputs[key].value = value;
+        });
+        this.requestDraw();
+      }
+
+      value(key) {
+        return parseFloat(this.inputs[key].value);
+      }
+
+      requestDraw() {
+        cancelAnimationFrame(this.drawFrame);
+        this.drawFrame = requestAnimationFrame(() => this.draw());
+      }
+
+      garmentBox(w, h) {
+        const img = this.garmentImg;
+        const scale = this.value('size') / 100;
+        const gw = w * 0.78 * scale * (this.value('width') / 100);
+        const gh = w * 0.78 * scale * (img.naturalHeight / img.naturalWidth);
+        return { cx: this.pos.x * w, top: this.pos.y * h, gw, gh };
+      }
+
+      draw() {
+        if (!this.photoImg || this.canvasWrap.hidden) return;
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const w = this.canvasWrap.clientWidth;
+        const h = this.canvasWrap.clientHeight;
+        if (!w || !h) return;
+        this.canvas.width = Math.round(w * dpr);
+        this.canvas.height = Math.round(h * dpr);
+        const ctx = this.ctx;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.clearRect(0, 0, w, h);
+
+        // Photo, cover-fit
+        const p = this.photoImg;
+        const ratio = Math.max(w / p.naturalWidth, h / p.naturalHeight);
+        const pw = p.naturalWidth * ratio;
+        const ph = p.naturalHeight * ratio;
+        const px = (w - pw) / 2;
+        const py = (h - ph) / 2;
+        ctx.drawImage(p, px, py, pw, ph);
+        if (this.showOriginal || !this.garmentImg) return;
+
+        const box = this.garmentBox(w, h);
+        const layer = document.createElement('canvas');
+        layer.width = this.canvas.width;
+        layer.height = this.canvas.height;
+        const lctx = layer.getContext('2d');
+        lctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+        const drawGarment = (c) => {
+          c.save();
+          c.translate(box.cx, box.top + box.gh / 2);
+          c.rotate((this.value('rotate') * Math.PI) / 180);
+          c.drawImage(this.garmentImg, -box.gw / 2, -box.gh / 2, box.gw, box.gh);
+          c.restore();
+        };
+
+        // 1. Shirt
+        drawGarment(lctx);
+
+        // 2. Pick up the light, shadows and folds from the photo underneath
+        const blend = this.value('blend') / 100;
+        if (blend > 0) {
+          lctx.globalCompositeOperation = 'source-atop';
+          lctx.globalAlpha = blend * 0.55;
+          lctx.filter = 'grayscale(1) contrast(1.15)';
+          const modes = ['soft-light'];
+          modes.forEach((mode) => {
+            lctx.globalCompositeOperation = mode;
+            lctx.drawImage(p, px, py, pw, ph);
+          });
+          lctx.filter = 'none';
+          lctx.globalAlpha = 1;
+          // keep only the shirt shape
+          lctx.globalCompositeOperation = 'destination-in';
+          drawGarment(lctx);
+        }
+
+        // 3. Neckline: fade the collar top so the chin and neck sit in front
+        const neck = this.value('neck') / 100;
+        if (neck > 0) {
+          lctx.globalCompositeOperation = 'destination-out';
+          const nw = box.gw * 0.22;
+          const nh = box.gh * neck;
+          const grad = lctx.createRadialGradient(box.cx, box.top, 0, box.cx, box.top, Math.max(nw, nh));
+          grad.addColorStop(0, 'rgba(0,0,0,1)');
+          grad.addColorStop(0.7, 'rgba(0,0,0,0.9)');
+          grad.addColorStop(1, 'rgba(0,0,0,0)');
+          lctx.fillStyle = grad;
+          lctx.save();
+          lctx.translate(box.cx, box.top);
+          lctx.scale(nw / Math.max(nw, nh), nh / Math.max(nw, nh));
+          lctx.translate(-box.cx, -box.top);
+          lctx.beginPath();
+          lctx.arc(box.cx, box.top, Math.max(nw, nh), 0, Math.PI * 2);
+          lctx.fill();
+          lctx.restore();
+        }
+        lctx.globalCompositeOperation = 'source-over';
+
+        // Soft contact shadow, then the shirt layer
+        ctx.save();
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.28)';
+        ctx.shadowBlur = 14 * dpr;
+        ctx.shadowOffsetY = 4 * dpr;
+        if (!this.garmentKeyed) ctx.globalCompositeOperation = 'multiply';
+        ctx.drawImage(layer, 0, 0);
+        ctx.restore();
+      }
+
+      bindDrag() {
+        let start = null;
+        const pointers = new Map();
+        let pinchStart = null;
+        this.canvas.addEventListener('pointerdown', (event) => {
+          event.preventDefault();
+          this.canvas.setPointerCapture(event.pointerId);
+          pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+          if (pointers.size === 2) {
+            const [a, b] = [...pointers.values()];
+            pinchStart = { dist: Math.hypot(a.x - b.x, a.y - b.y), size: this.value('size') };
+            start = null;
+          } else {
+            start = { x: event.clientX, y: event.clientY, pos: { ...this.pos } };
+          }
+        });
+        this.canvas.addEventListener('pointermove', (event) => {
+          if (!pointers.has(event.pointerId)) return;
+          pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+          const rect = this.canvas.getBoundingClientRect();
+          if (pinchStart && pointers.size === 2) {
+            const [a, b] = [...pointers.values()];
+            const dist = Math.hypot(a.x - b.x, a.y - b.y);
+            this.inputs.size.value = Math.max(30, Math.min(200, pinchStart.size * (dist / pinchStart.dist)));
+            this.requestDraw();
+            return;
+          }
+          if (!start) return;
+          this.pos.x = start.pos.x + (event.clientX - start.x) / rect.width;
+          this.pos.y = start.pos.y + (event.clientY - start.y) / rect.height;
+          this.requestDraw();
+        });
+        const end = (event) => {
+          pointers.delete(event.pointerId);
+          if (pointers.size < 2) pinchStart = null;
+          if (pointers.size === 0) start = null;
+        };
+        this.canvas.addEventListener('pointerup', end);
+        this.canvas.addEventListener('pointercancel', end);
+        this.canvas.addEventListener(
+          'wheel',
+          (event) => {
+            event.preventDefault();
+            const next = this.value('size') - Math.sign(event.deltaY) * 4;
+            this.inputs.size.value = Math.max(30, Math.min(200, next));
+            this.requestDraw();
+          },
+          { passive: false }
+        );
+        this.canvas.addEventListener('keydown', (event) => {
+          const stepSize = event.shiftKey ? 0.03 : 0.008;
+          const moves = { ArrowLeft: [-stepSize, 0], ArrowRight: [stepSize, 0], ArrowUp: [0, -stepSize], ArrowDown: [0, stepSize] };
+          const move = moves[event.key];
+          if (!move) return;
+          event.preventDefault();
+          event.stopPropagation();
+          this.pos.x += move[0];
+          this.pos.y += move[1];
+          this.requestDraw();
+        });
+      }
+
+      disconnectedCallback() {
+        if (this.resizeObserver) this.resizeObserver.disconnect();
+        cancelAnimationFrame(this.drawFrame);
+        document.removeEventListener('click', this.onDocumentClick);
+        if (this.photoUrl) URL.revokeObjectURL(this.photoUrl);
+        cancelAnimationFrame(this.announceFrame);
+      }
+
+      show(productId) {
+        const product = this.products.find((p) => String(p.id) === String(productId));
+        if (!product) return;
+        this.current = product;
+        this.index = product.start || 0;
+        this.querySelector('[data-try-on-title]').textContent = product.title;
+        this.querySelector('[data-try-on-price]').textContent = product.price;
+        this.querySelector('[data-try-on-link]').href = product.url;
+        this.querySelectorAll('[data-try-on-select]').forEach((thumb) => {
+          thumb.setAttribute('aria-pressed', String(thumb.dataset.tryOnSelect === String(product.id)));
+        });
+        this.render();
+        this.setMode(this.mode || 'mannequin');
+      }
+
+      step(direction) {
+        if (this.mode === 'self' || !this.current || this.current.images.length < 2) return;
+        const count = this.current.images.length;
+        this.index = (this.index + direction + count) % count;
+        this.render();
+      }
+
+      render() {
+        const images = this.current.images;
+        const counter = this.querySelector('[data-try-on-counter]');
+        if (!images.length) {
+          this.image.removeAttribute('src');
+          counter.hidden = true;
+          return;
+        }
+        const img = images[this.index];
+        this.image.classList.add('is-loading');
+        this.image.onload = () => this.image.classList.remove('is-loading');
+        this.image.src = img.src;
+        this.image.alt = img.alt || this.current.title;
+        const tag = this.querySelector('[data-try-on-tag]');
+        if (tag) tag.hidden = !img.trial;
+        counter.hidden = images.length < 2;
+        counter.textContent = (this.strings.photo || '')
+          .replace('__INDEX__', this.index + 1)
+          .replace('__COUNT__', images.length);
+      }
+
+      announce(text) {
+        const announcer = this.querySelector('[data-try-on-announcer]');
+        if (!announcer) return;
+        cancelAnimationFrame(this.announceFrame);
+        announcer.textContent = '';
+        this.announceFrame = requestAnimationFrame(() => {
+          announcer.textContent = text;
+        });
+      }
+    }
+
+    customElements.define('try-on-modal', TryOnModal);
+  }
+</script>

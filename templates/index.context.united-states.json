@@ -1,0 +1,145 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "context": {
+    "market": "united-states"
+  },
+  "parent": "index.json",
+  "sections": {
+    "collection_list_qb34X": {
+      "type": "collection-list",
+      "disabled": false,
+      "settings": {
+        "title": "Collections",
+        "heading_size": "h1",
+        "header-c09fe3d32251bacd60d0fe137e51ce53": null,
+        "image_ratio": "square",
+        "columns_desktop": 3,
+        "color_scheme": "",
+        "show_view_all": false,
+        "header-b9b200fb33654d764ce8419744c43e4f": null,
+        "columns_mobile": "1",
+        "swipe_on_mobile": false,
+        "header-595317494386dba123bfd7b9cef348fa": null,
+        "padding_top": 36,
+        "padding_bottom": 36
+      },
+      "blocks": {
+        "featured_collection_ERkGf": {
+          "type": "featured_collection",
+          "disabled": false,
+          "settings": {
+            "collection": ""
+          }
+        },
+        "featured_collection_XRxCg": {
+          "type": "featured_collection",
+          "disabled": false,
+          "settings": {
+            "collection": ""
+          }
+        },
+        "featured_collection_6TV66": {
+          "type": "featured_collection",
+          "disabled": false,
+          "settings": {
+            "collection": ""
+          }
+        }
+      },
+      "block_order": [
+        "featured_collection_ERkGf",
+        "featured_collection_XRxCg",
+        "featured_collection_6TV66"
+      ],
+      "name": "t:sections.collection-list.presets.name"
+    },
+    "featured_collection_pJUyp": {
+      "type": "featured-collection",
+      "disabled": false,
+      "settings": {
+        "collection": "",
+        "products_to_show": 4,
+        "header-1e5467dc5e933c28ae1d8eafa2734eb7": null,
+        "title": "Featured collection",
+        "heading_size": "h1",
+        "description": "",
+        "show_description": false,
+        "description_style": "body",
+        "header-3bb1a7134d387c55ed68ff4c310d2878": null,
+        "columns_desktop": 4,
+        "enable_desktop_slider": false,
+        "full_width": false,
+        "show_view_all": true,
+        "view_all_style": "solid",
+        "color_scheme": "",
+        "header-bc1b796560d26bfd7f5472611a1b4dc4": null,
+        "image_ratio": "adapt",
+        "image_shape": "default",
+        "show_secondary_image": false,
+        "show_vendor": false,
+        "show_rating": false,
+        "quick_add": "none",
+        "header-ae193b6c6b9f8ac3ed08c34dd4629501": null,
+        "columns_mobile": "2",
+        "swipe_on_mobile": false,
+        "header-a298199699a7d62bf742f28b5ac766ec": null,
+        "padding_top": 36,
+        "padding_bottom": 36
+      },
+      "blocks": {},
+      "block_order": [],
+      "name": "t:sections.featured-collection.presets.name"
+    },
+    "featured_blog_yPrrK": {
+      "type": "featured-blog",
+      "disabled": false,
+      "settings": {
+        "blog": "",
+        "post_limit": 3,
+        "header-bfe24c81aadc2e6be80a0aa189ebf1bd": null,
+        "heading": "Blog posts",
+        "heading_size": "h1",
+        "header-3b9def1b65170a772dd4801772769a26": null,
+        "columns_desktop": 3,
+        "show_view_all": true,
+        "show_image": true,
+        "show_date": true,
+        "show_author": false,
+        "color_scheme": "",
+        "header-b3d7be17ffb9d7f8eed1d45aac1f37cb": null,
+        "padding_top": 36,
+        "padding_bottom": 36
+      },
+      "blocks": {},
+      "block_order": [],
+      "name": "t:sections.featured-blog.presets.name"
+    },
+    "image_banner": {
+      "settings": {
+        "image": "shopify://shop_images/create-image-for-sugar-cane-farming.png",
+        "image_2": "shopify://shop_images/create-image-for-the-berry-berry-bliss.png"
+      },
+      "blocks": {}
+    },
+    "featured_collection": {
+      "disabled": true,
+      "settings": {},
+      "blocks": {}
+    }
+  },
+  "order": [
+    "image_banner",
+    "featured_collection",
+    "collection_list_qb34X",
+    "featured_collection_pJUyp",
+    "featured_blog_yPrrK"
+  ]
+}

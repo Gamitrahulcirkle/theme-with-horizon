@@ -1,0 +1,460 @@
+{%- liquid
+  assign min_items = section.settings.min_items
+  assign tints = 'mm-tint-1,mm-tint-2,mm-tint-3,mm-tint-4' | split: ','
+-%}
+
+{%- style -%}
+  #MixMatch-{{ section.id }} {
+    --mm-bg: {{ section.settings.background }};
+    --mm-accent: {{ section.settings.accent }};
+    --mm-highlight: {{ section.settings.price_highlight }};
+    --mm-button: {{ section.settings.button_color }};
+    --mm-button-text: {{ section.settings.button_text_color }};
+    --mm-ink: {{ section.settings.text_color }};
+    --mm-tint-1: {{ section.settings.tint_1 }};
+    --mm-tint-2: {{ section.settings.tint_2 }};
+    --mm-tint-3: {{ section.settings.tint_3 }};
+    --mm-tint-4: {{ section.settings.tint_4 }};
+  }
+{%- endstyle -%}
+
+<mix-and-match
+  id="MixMatch-{{ section.id }}"
+  class="mm"
+  data-min="{{ min_items }}"
+  data-cart-add-url="{{ routes.cart_add_url }}"
+  data-checkout-url="/checkout"
+  data-money-format="{{ shop.money_format | escape }}"
+  data-label-items-added="{{ 'mix_match.items_added' | t | escape }}"
+  data-label-add-more="{{ 'mix_match.add_more' | t | escape }}"
+  data-label-add-more-one="{{ 'mix_match.add_more_one' | t | escape }}"
+  data-label-continue="{{ 'mix_match.continue' | t | escape }}"
+  data-label-items-count="{{ 'mix_match.items_count' | t | escape }}"
+  data-label-checking-out="{{ 'mix_match.checking_out' | t | escape }}"
+  data-label-error="{{ 'mix_match.error' | t | escape }}"
+  data-label-remove="{{ 'mix_match.remove' | t: title: '[title]' | escape }}"
+>
+  {%- if section.settings.note_1 != blank or section.settings.note_2 != blank -%}
+    <div class="mm__notes">
+      <div class="page-width mm__notes-inner">
+        {%- if section.settings.note_1 != blank -%}
+          <span class="mm__note">{% render 'icon-mm', icon: 'box' %}{{ section.settings.note_1 }}</span>
+        {%- endif -%}
+        {%- if section.settings.note_2 != blank -%}
+          <span class="mm__note">{% render 'icon-mm', icon: 'truck' %}{{ section.settings.note_2 }}</span>
+        {%- endif -%}
+      </div>
+    </div>
+  {%- endif -%}
+
+  {%- comment -%} Step 1: choose flavours {%- endcomment -%}
+  <div class="mm__step mm__step--build page-width" data-step="build">
+    <div class="mm__intro">
+      {%- if section.settings.heading != blank -%}
+        <h1 class="mm__heading">{{ section.settings.heading }}</h1>
+      {%- endif -%}
+      <ol class="mm__progress-steps">
+        {%- if section.settings.step_1 != blank -%}<li class="is-active"><span>1</span>{{ section.settings.step_1 }}</li>{%- endif -%}
+        {%- if section.settings.step_2 != blank -%}<li><span>2</span>{{ section.settings.step_2 }}</li>{%- endif -%}
+        {%- if section.settings.step_3 != blank -%}<li><span>3</span>{{ section.settings.step_3 }}</li>{%- endif -%}
+      </ol>
+    </div>
+
+    <div class="mm__layout">
+      <div class="mm__groups">
+        {%- for block in section.blocks -%}
+          {%- assign product = block.settings.product -%}
+          <section class="mm-group" {{ block.shopify_attributes }}>
+            <div class="mm-group__header">
+              <div class="mm-group__image">
+                {%- if product.featured_image -%}
+                  {{ product.featured_image | image_url: width: 240 | image_tag: loading: 'lazy', widths: '120, 240', sizes: '96px' }}
+                {%- else -%}
+                  {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
+                {%- endif -%}
+              </div>
+              <div class="mm-group__info">
+                {%- if block.settings.eyebrow != blank -%}
+                  <p class="mm-group__eyebrow">{{ block.settings.eyebrow }}</p>
+                {%- endif -%}
+                <h2 class="mm-group__title">
+                  {%- if block.settings.title != blank -%}{{ block.settings.title }}{%- else -%}{{ product.title | default: 'Product' }}{%- endif -%}
+                </h2>
+                <ul class="mm-group__facts">
+                  {%- if block.settings.fact_1 != blank -%}<li>{% render 'icon-mm', icon: 'kcal' %}{{ block.settings.fact_1 }}</li>{%- endif -%}
+                  {%- if block.settings.fact_2 != blank -%}<li>{% render 'icon-mm', icon: 'protein' %}{{ block.settings.fact_2 }}</li>{%- endif -%}
+                </ul>
+                <div class="mm-group__meta">
+                  {%- if product -%}
+                    <span class="mm-group__price">{{ 'mix_match.per_meal' | t: price: product.price | money }}</span>
+                    <a class="mm-group__learn" href="{{ product.url }}">{{ 'mix_match.learn_more' | t }}</a>
+                  {%- endif -%}
+                </div>
+              </div>
+            </div>
+
+            {%- if product -%}
+              <ul class="mm-group__flavours" role="list">
+                {%- for variant in product.variants -%}
+                  {%- liquid
+                    assign tint_index = forloop.index0 | modulo: 4
+                    assign flavour_image = variant.featured_image | default: product.featured_image
+                    assign flavour_name = variant.title
+                    if product.has_only_default_variant
+                      assign flavour_name = product.title
+                    endif
+                    assign plans = ''
+                    for allocation in variant.selling_plan_allocations
+                      assign plan_entry = allocation.selling_plan.id | append: ':' | append: allocation.price
+                      assign plans = plans | append: plan_entry | append: ','
+                    endfor
+                  -%}
+                  <li
+                    class="mm-flavour {{ tints[tint_index] }}{% unless variant.available %} is-unavailable{% endunless %}"
+                    data-variant-id="{{ variant.id }}"
+                    data-title="{{ flavour_name | escape }}"
+                    data-group="{{ block.settings.title | default: product.title | escape }}"
+                    data-price="{{ variant.price }}"
+                    data-plans="{{ plans }}"
+                    data-image="{% if flavour_image %}{{ flavour_image | image_url: width: 120 }}{% endif %}"
+                  >
+                    <div class="mm-flavour__image">
+                      {%- if flavour_image -%}
+                        {{ flavour_image | image_url: width: 160 | image_tag: loading: 'lazy', alt: flavour_name, widths: '80, 160', sizes: '56px' }}
+                      {%- endif -%}
+                    </div>
+                    <p class="mm-flavour__name">{{ flavour_name }}</p>
+                    {%- if variant.available -%}
+                      <div class="mm-flavour__controls">
+                        <button type="button" class="mm-flavour__add" data-action="add">{{ 'mix_match.add' | t }}</button>
+                        <div class="mm-qty" hidden>
+                          <button type="button" class="mm-qty__btn" data-action="decrease" aria-label="{{ 'mix_match.decrease' | t: title: variant.title | escape }}">−</button>
+                          <span class="mm-qty__value" aria-live="polite">0</span>
+                          <button type="button" class="mm-qty__btn" data-action="increase" aria-label="{{ 'mix_match.increase' | t: title: variant.title | escape }}">+</button>
+                        </div>
+                      </div>
+                    {%- else -%}
+                      <p class="mm-flavour__soldout">{{ 'mix_match.unavailable' | t }}</p>
+                    {%- endif -%}
+                  </li>
+                {%- endfor -%}
+              </ul>
+            {%- endif -%}
+          </section>
+        {%- endfor -%}
+      </div>
+
+      <aside class="mm-cart" aria-label="{{ section.settings.cart_title | escape }}">
+        <div class="mm-cart__panel">
+          <button type="button" class="mm-cart__header" data-action="toggle-cart" aria-expanded="false">
+            <span class="mm-cart__title">{{ section.settings.cart_title }}</span>
+            <span class="mm-cart__count"><span data-count>0</span>/{{ min_items }}</span>
+          </button>
+          <div class="mm-cart__bar"><span data-bar></span></div>
+          <div class="mm-cart__body">
+            <p class="mm-cart__empty" data-empty>{{ 'mix_match.empty' | t }}</p>
+            <div class="mm-cart__list" data-list></div>
+          </div>
+          <div class="mm-cart__footer">
+            <div class="mm-cart__summary">
+              <span data-items-added></span>
+              <span>{{ 'mix_match.total' | t }} <strong data-total></strong></span>
+            </div>
+            <button type="button" class="mm-btn" data-action="continue" disabled></button>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  {%- comment -%} Step 2: purchase options {%- endcomment -%}
+  <div class="mm__step mm__step--purchase" data-step="purchase" hidden>
+    <div class="mm-purchase">
+      <div class="mm-purchase__top">
+        <button type="button" class="mm-purchase__back" data-action="back" aria-label="{{ 'mix_match.back' | t | escape }}">
+          {% render 'icon-mm', icon: 'chevron' %}
+        </button>
+        <h2 class="mm-purchase__heading">{{ section.settings.purchase_heading }}</h2>
+      </div>
+
+      <div class="mm-option mm-option--flexible" data-option="flexible">
+        {%- if section.settings.flexible_badge != blank -%}
+          <p class="mm-option__badge">{% render 'icon-mm', icon: 'star' %}{{ section.settings.flexible_badge }}</p>
+        {%- endif -%}
+        <label class="mm-option__card">
+          <span class="mm-option__row">
+            <input type="radio" name="mm-plan-{{ section.id }}" value="flexible" checked>
+            <span class="mm-option__main">
+              <span class="mm-option__title">{{ section.settings.flexible_title }}</span>
+              <span class="mm-option__price"><mark data-flex-price></mark> <s data-flex-compare></s></span>
+            </span>
+            <span class="mm-option__items" data-items-label></span>
+          </span>
+          <span class="mm-option__details">
+            {%- if section.settings.flexible_benefits != blank -%}
+              <span class="mm-option__benefits">{{ section.settings.flexible_benefits }}</span>
+            {%- endif -%}
+            <span class="mm-option__frequency">
+              <span class="mm-option__freq-label">{{ 'mix_match.delivers_every' | t }}</span>
+              <select class="mm-option__select" data-frequency aria-label="{{ 'mix_match.delivers_every' | t | escape }}">
+                {%- liquid
+                  assign seen_plans = ''
+                  for block in section.blocks
+                    for group in block.settings.product.selling_plan_groups
+                      for plan in group.selling_plans
+                        assign plan_key = '|' | append: plan.id | append: '|'
+                        unless seen_plans contains plan_key
+                          assign seen_plans = seen_plans | append: plan_key
+                          assign plan_name = plan.name | escape
+                          echo '<option value="' | append: plan.id | append: '">' | append: plan_name | append: '</option>'
+                        endunless
+                      endfor
+                    endfor
+                  endfor
+                -%}
+              </select>
+            </span>
+          </span>
+        </label>
+      </div>
+
+      <div class="mm-option" data-option="onetime">
+        <label class="mm-option__card">
+          <span class="mm-option__row">
+            <input type="radio" name="mm-plan-{{ section.id }}" value="onetime">
+            <span class="mm-option__main">
+              <span class="mm-option__title">{{ section.settings.onetime_title }}</span>
+              <span class="mm-option__price" data-onetime-price></span>
+            </span>
+            <span class="mm-option__items" data-items-label></span>
+          </span>
+        </label>
+      </div>
+
+      <div class="mm-purchase__footer">
+        <div class="mm-cart__summary">
+          <span data-items-added></span>
+          <span>{{ 'mix_match.total' | t }} <strong data-purchase-total></strong></span>
+        </div>
+        <button type="button" class="mm-btn mm-btn--checkout" data-action="checkout">
+          {% render 'icon-mm', icon: 'lock' %}<span>{{ section.settings.checkout_label }}</span>
+        </button>
+        <p class="mm-purchase__error" role="alert" data-error hidden></p>
+      </div>
+    </div>
+  </div>
+</mix-and-match>
+
+{{ 'section-mix-and-match.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'mix-and-match.js' | asset_url }}" defer="defer"></script>
+
+{% schema %}
+{
+  "name": "Mix and match builder",
+  "tag": "section",
+  "class": "section",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Mix and Match"
+    },
+    {
+      "type": "text",
+      "id": "step_1",
+      "label": "Step 1 label",
+      "default": "Add single flavours to your box"
+    },
+    {
+      "type": "text",
+      "id": "step_2",
+      "label": "Step 2 label",
+      "default": "Choose your purchase option"
+    },
+    {
+      "type": "text",
+      "id": "step_3",
+      "label": "Step 3 label",
+      "default": "Checkout"
+    },
+    {
+      "type": "text",
+      "id": "note_1",
+      "label": "Top note 1",
+      "default": "Minimum 12 items"
+    },
+    {
+      "type": "text",
+      "id": "note_2",
+      "label": "Top note 2",
+      "default": "Free delivery over £45"
+    },
+    {
+      "type": "range",
+      "id": "min_items",
+      "label": "Minimum items per box",
+      "min": 1,
+      "max": 30,
+      "step": 1,
+      "default": 12
+    },
+    {
+      "type": "text",
+      "id": "cart_title",
+      "label": "Sidebar title",
+      "default": "Your items"
+    },
+    {
+      "type": "header",
+      "content": "Purchase options"
+    },
+    {
+      "type": "text",
+      "id": "purchase_heading",
+      "label": "Heading",
+      "default": "Purchase options"
+    },
+    {
+      "type": "text",
+      "id": "flexible_badge",
+      "label": "Subscription badge",
+      "default": "Most customers choose this"
+    },
+    {
+      "type": "text",
+      "id": "flexible_title",
+      "label": "Subscription title",
+      "default": "Flexible plan"
+    },
+    {
+      "type": "richtext",
+      "id": "flexible_benefits",
+      "label": "Subscription benefits",
+      "default": "<ul><li>10% off all recurring orders</li><li>Skip or reschedule anytime</li><li>Cancel anytime - no fees</li><li>Free t-shirt for new customers</li></ul>"
+    },
+    {
+      "type": "text",
+      "id": "onetime_title",
+      "label": "One-time title",
+      "default": "One-time"
+    },
+    {
+      "type": "text",
+      "id": "checkout_label",
+      "label": "Checkout button label",
+      "default": "Secure checkout"
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "background",
+      "label": "Page background",
+      "default": "#f4f0e8"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text",
+      "default": "#121212"
+    },
+    {
+      "type": "color",
+      "id": "accent",
+      "label": "Sidebar header and badge",
+      "default": "#d8d0b8"
+    },
+    {
+      "type": "color",
+      "id": "price_highlight",
+      "label": "Price highlight",
+      "default": "#dff3dc"
+    },
+    {
+      "type": "color",
+      "id": "button_color",
+      "label": "Button",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Button text",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "tint_1",
+      "label": "Flavour tile tint 1",
+      "default": "#efe4d6"
+    },
+    {
+      "type": "color",
+      "id": "tint_2",
+      "label": "Flavour tile tint 2",
+      "default": "#f7f3ef"
+    },
+    {
+      "type": "color",
+      "id": "tint_3",
+      "label": "Flavour tile tint 3",
+      "default": "#fbf0dc"
+    },
+    {
+      "type": "color",
+      "id": "tint_4",
+      "label": "Flavour tile tint 4",
+      "default": "#f4e1dc"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "product_group",
+      "name": "Product",
+      "settings": [
+        {
+          "type": "product",
+          "id": "product",
+          "label": "Product (each variant shows as a flavour)"
+        },
+        {
+          "type": "text",
+          "id": "eyebrow",
+          "label": "Small label",
+          "default": "Black Edition Sachets"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "info": "Leave blank to use the product title"
+        },
+        {
+          "type": "text",
+          "id": "fact_1",
+          "label": "Fact 1",
+          "default": "400 kcal per meal"
+        },
+        {
+          "type": "text",
+          "id": "fact_2",
+          "label": "Fact 2",
+          "default": "40g protein"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Mix and match builder",
+      "blocks": [{ "type": "product_group" }]
+    }
+  ]
+}
+{% endschema %}
