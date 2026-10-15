@@ -1,0 +1,346 @@
+{%- liquid
+  assign fetch_priority = 'auto'
+  if section.index == 1
+    assign fetch_priority = 'high'
+  endif
+
+  assign image_alt = section.settings.image.alt | default: section.settings.heading | strip_html
+  if image_alt == blank
+    assign image_alt = 'brand_intro.image_alt' | t
+  endif
+-%}
+
+{%- style -%}
+  #BrandIntro-{{ section.id }} {
+    --bi-card: {{ section.settings.card_background }};
+    --bi-accent: {{ section.settings.accent }};
+    --bi-text: {{ section.settings.text_color }};
+    --color-button: {{ section.settings.button_color.red }}, {{ section.settings.button_color.green }}, {{ section.settings.button_color.blue }};
+    --color-button-text: {{ section.settings.button_text_color.red }}, {{ section.settings.button_text_color.green }}, {{ section.settings.button_text_color.blue }};
+    padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+  }
+
+  @media screen and (min-width: 750px) {
+    #BrandIntro-{{ section.id }} {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+{%- endstyle -%}
+
+<div
+  id="BrandIntro-{{ section.id }}"
+  class="brand-intro"
+>
+  <div class="page-width">
+    <div class="brand-intro__card{% if section.settings.show_accent %} brand-intro__card--accent{% endif %}">
+      <div class="brand-intro__inner brand-intro__inner--{{ section.settings.layout }}">
+        <div class="brand-intro__content">
+          {%- if section.settings.eyebrow != blank -%}
+            <p class="brand-intro__eyebrow">{{ section.settings.eyebrow | escape }}</p>
+          {%- endif -%}
+
+          {%- if section.settings.heading != blank -%}
+            <h2 class="brand-intro__heading inline-richtext">{{ section.settings.heading }}</h2>
+          {%- endif -%}
+
+          {%- if section.settings.text != blank -%}
+            <div class="brand-intro__text rte">{{ section.settings.text }}</div>
+          {%- endif -%}
+
+          {%- if section.settings.button_label != blank -%}
+            <a
+              {% if section.settings.button_link == blank %}
+                role="link"
+                aria-disabled="true"
+              {% else %}
+                href="{{ section.settings.button_link }}"
+              {% endif %}
+              class="button brand-intro__button"
+            >
+              {{- section.settings.button_label | escape -}}
+            </a>
+          {%- endif -%}
+        </div>
+
+        <div class="brand-intro__media">
+          {%- if section.settings.image != blank -%}
+            {{
+              section.settings.image
+              | image_url: width: 1200
+              | image_tag:
+                loading: 'lazy',
+                fetchpriority: fetch_priority,
+                widths: '375, 550, 750, 990, 1200',
+                sizes: '(min-width: 990px) 480px, (min-width: 750px) 45vw, 90vw',
+                alt: image_alt
+            }}
+          {%- else -%}
+            {{ 'lifestyle-2' | placeholder_svg_tag: 'placeholder-svg' }}
+          {%- endif -%}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% stylesheet %}
+  .brand-intro {
+    overflow: visible;
+  }
+
+  .brand-intro__card {
+    position: relative;
+    background: var(--bi-card);
+    color: var(--bi-text);
+    border-radius: 3.2rem;
+    padding: 3.2rem 2.4rem;
+  }
+
+  .brand-intro__card--accent {
+    margin-top: 2.8rem;
+  }
+
+  .brand-intro__card--accent::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 4.8rem;
+    width: 5.6rem;
+    height: 5.6rem;
+    background: var(--bi-accent);
+    border-radius: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+  }
+
+  .brand-intro__inner {
+    display: grid;
+    gap: 2.4rem;
+    align-items: center;
+  }
+
+  .brand-intro__inner--image_first .brand-intro__media {
+    order: -1;
+  }
+
+  .brand-intro__content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    max-width: 54rem;
+  }
+
+  .brand-intro__eyebrow {
+    margin: 0 0 1.2rem;
+    color: var(--bi-accent);
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .brand-intro__heading {
+    margin: 0 0 1.6rem;
+    color: var(--bi-text);
+    font-size: calc(var(--font-heading-scale) * 2rem);
+    line-height: 1.35;
+    letter-spacing: -0.01em;
+  }
+
+  .brand-intro__text {
+    margin: 0 0 2.4rem;
+    color: var(--bi-text);
+    font-size: 1.5rem;
+    line-height: 1.55;
+  }
+
+  .brand-intro__text p {
+    margin: 0;
+  }
+
+  .brand-intro__button {
+    --buttons-radius-outset: 4rem;
+    border-radius: 4rem;
+    min-width: 0;
+    min-height: 4.4rem;
+    padding: 0.8rem 2.4rem;
+    font-size: 1.4rem;
+  }
+
+  .brand-intro__media {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    border-radius: 1.8rem;
+  }
+
+  .brand-intro__media img,
+  .brand-intro__media .placeholder-svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .brand-intro__media .placeholder-svg {
+    background: rgba(0, 0, 0, 0.04);
+  }
+
+  @media screen and (min-width: 750px) {
+    .brand-intro__card {
+      padding: 5.6rem 4.8rem;
+    }
+
+    .brand-intro__inner {
+      grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+      gap: 4.8rem;
+    }
+
+    .brand-intro__inner--image_first {
+      grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+    }
+
+    .brand-intro__heading {
+      font-size: calc(var(--font-heading-scale) * 2.4rem);
+    }
+
+    .brand-intro__media {
+      aspect-ratio: 5 / 4;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:sections.brand-intro.name",
+  "tag": "section",
+  "class": "section",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "t:sections.brand-intro.settings.eyebrow.label",
+      "default": "We are PERCUP"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "label": "t:sections.brand-intro.settings.heading.label",
+      "default": "We connect you to the world's best coffee, tea and matcha brands because we believe that everyone deserves to have better, more exciting drinking experiences."
+    },
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "t:sections.brand-intro.settings.text.label",
+      "default": "<p>Whether you're an early riser, a pick-me-up in the afternoon or a sit-and-savour-the-moment type of drinker, PERCUP has a cup of something that will make your day taste a whole lot better.</p>"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "t:sections.brand-intro.settings.button_label.label",
+      "default": "Discover More"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "t:sections.brand-intro.settings.button_link.label"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "t:sections.brand-intro.settings.image.label"
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "t:sections.brand-intro.settings.layout.label",
+      "options": [
+        {
+          "value": "text_first",
+          "label": "t:sections.brand-intro.settings.layout.options__1.label"
+        },
+        {
+          "value": "image_first",
+          "label": "t:sections.brand-intro.settings.layout.options__2.label"
+        }
+      ],
+      "default": "text_first"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.brand-intro.settings.colors.content"
+    },
+    {
+      "type": "color",
+      "id": "card_background",
+      "label": "t:sections.brand-intro.settings.card_background.label",
+      "default": "#F3EEE3"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "t:sections.brand-intro.settings.text_color.label",
+      "default": "#1A1A1A"
+    },
+    {
+      "type": "color",
+      "id": "accent",
+      "label": "t:sections.brand-intro.settings.accent.label",
+      "default": "#8B3A32"
+    },
+    {
+      "type": "color",
+      "id": "button_color",
+      "label": "t:sections.brand-intro.settings.button_color.label",
+      "default": "#8B3A32"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "t:sections.brand-intro.settings.button_text_color.label",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_accent",
+      "label": "t:sections.brand-intro.settings.show_accent.label",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "t:sections.all.padding.section_padding_heading"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.all.padding.padding_top",
+      "default": 52
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.all.padding.padding_bottom",
+      "default": 52
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.brand-intro.presets.name"
+    }
+  ]
+}
+{% endschema %}

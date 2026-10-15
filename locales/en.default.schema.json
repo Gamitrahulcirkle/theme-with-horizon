@@ -3419,6 +3419,62 @@
           "label": "Open by default"
         }
       }
+    },
+    "brand-intro": {
+      "name": "Brand intro",
+      "settings": {
+        "eyebrow": {
+          "label": "Eyebrow"
+        },
+        "heading": {
+          "label": "Heading"
+        },
+        "text": {
+          "label": "Text"
+        },
+        "button_label": {
+          "label": "Button label"
+        },
+        "button_link": {
+          "label": "Button link"
+        },
+        "image": {
+          "label": "Image"
+        },
+        "layout": {
+          "label": "Desktop layout",
+          "options__1": {
+            "label": "Text first"
+          },
+          "options__2": {
+            "label": "Image first"
+          }
+        },
+        "colors": {
+          "content": "Colors"
+        },
+        "card_background": {
+          "label": "Card background"
+        },
+        "text_color": {
+          "label": "Text"
+        },
+        "accent": {
+          "label": "Accent"
+        },
+        "button_color": {
+          "label": "Button"
+        },
+        "button_text_color": {
+          "label": "Button text"
+        },
+        "show_accent": {
+          "label": "Show accent shape"
+        }
+      },
+      "presets": {
+        "name": "Brand intro"
+      }
     }
   }
 }

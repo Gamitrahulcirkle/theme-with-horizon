@@ -48,6 +48,25 @@
         "show_text_below": false
       }
     },
+    "brand_intro": {
+      "type": "brand-intro",
+      "settings": {
+        "eyebrow": "We are PERCUP",
+        "heading": "We connect you to the world's best coffee, tea and matcha brands because we believe that everyone deserves to have better, more exciting drinking experiences.",
+        "text": "<p>Whether you're an early riser, a pick-me-up in the afternoon or a sit-and-savour-the-moment type of drinker, PERCUP has a cup of something that will make your day taste a whole lot better.<\/p>",
+        "button_label": "Discover More",
+        "button_link": "",
+        "layout": "text_first",
+        "card_background": "#F3EEE3",
+        "text_color": "#1A1A1A",
+        "accent": "#8B3A32",
+        "button_color": "#8B3A32",
+        "button_text_color": "#FFFFFF",
+        "show_accent": true,
+        "padding_top": 52,
+        "padding_bottom": 52
+      }
+    },
     "featured_collection": {
       "type": "featured-collection",
       "settings": {
@@ -79,6 +98,7 @@
   },
   "order": [
     "image_banner",
+    "brand_intro",
     "featured_collection"
   ]
 }

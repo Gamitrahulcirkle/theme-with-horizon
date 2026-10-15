@@ -28,6 +28,9 @@
     "error": "Something went wrong. Please try again.",
     "unavailable": "Sold out"
   },
+  "brand_intro": {
+    "image_alt": "Brand story"
+  },
   "general": {
     "password_page": {
       "login_form_heading": "Enter store using password:",
